@@ -6,7 +6,7 @@ DROP TABLE IF EXISTS tutors;
 DROP TABLE IF EXISTS students;
 DROP TABLE IF EXISTS lessons;
 DROP TABLE IF EXISTS tags;
-DROP TABLE IF EXISTS bookings;
+DROP TABLE IF EXISTS lessonsTags;
 
 -- Table: tutors
 CREATE TABLE IF NOT EXISTS tutors
@@ -29,13 +29,15 @@ CREATE TABLE IF NOT EXISTS students
 -- Table: lessons
 CREATE TABLE IF NOT EXISTS lessons
 (
-    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    idLesson        INTEGER PRIMARY KEY AUTOINCREMENT,
     tutorCF         TEXT NOT NULL,
     title           TEXT NOT NULL,
     description     TEXT,
     startTime       TEXT NOT NULL,
     endTime         TEXT NOT NULL,
     price           FLOAT NOT NULL CHECK(price >= 0),
+    state           TEXT NOT NULL,
+    stateExtraInfo  TEXT,
     FOREIGN KEY (tutorCF) REFERENCES tutors (cf) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
@@ -44,14 +46,16 @@ CREATE TABLE IF NOT EXISTS lessons
 CREATE TABLE IF NOT EXISTS tags
 (
     idTag       INTEGER PRIMARY KEY AUTOINCREMENT,
-    tag         TEXT NOT NULL
+    tag         TEXT NOT NULL,
+    tagType     TEXT NOT NULL
 );
 
--- Table: bookings
-CREATE TABLE IF NOT EXISTS bookings
+-- Table: lessonsTags
+CREATE TABLE IF NOT EXISTS lessonsTags
 (
-    idLesson        INTEGER NOT NULL ,
-    studentCF       TEXT NOT NULL,
-    FOREIGN KEY (idLesson) REFERENCES lessons (id) ON UPDATE CASCADE ON DELETE CASCADE,
-    FOREIGN KEY (studentCF) REFERENCES students (cf) ON UPDATE CASCADE ON DELETE CASCADE
+    idTag       INTEGER NOT NULL,
+    idLesson    INTEGER NOT NULL,
+    PRIMARY KEY (idTag, idLesson),
+    FOREIGN KEY (idTag) REFERENCES tags (idTag) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (idLesson) REFERENCES lessons (idLesson) ON UPDATE CASCADE ON DELETE CASCADE
 );

@@ -1,16 +1,16 @@
 package dao;
 
 import domainModel.Lesson;
+import domainModel.State.*;
+import domainModel.Tags.*;
 
 import java.sql.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class SQLiteLessonDAO implements LessonDAO{
-
-    //TODO MANCA STATO E TAGS!!
 
     // Get a specific lesson
     @Override
@@ -22,6 +22,7 @@ public class SQLiteLessonDAO implements LessonDAO{
         ResultSet rs = ps.executeQuery();
 
         if(rs.next()){
+            // This recreates the attributes of the lesson
             lesson = new Lesson(
                     rs.getInt("id"),
                     rs.getString("title"),
@@ -32,13 +33,65 @@ public class SQLiteLessonDAO implements LessonDAO{
                     rs.getString("tutorCF")
             );
 
+            // This recreates the state of the lesson
+            if (Objects.equals(rs.getString("state"), "Booked")){
+                String a = rs.getString("stateExtraInfo");
+                Booked booked = new Booked(a);
+                lesson.setState(booked);
+            } else if (Objects.equals(rs.getString("state"), "Cancelled")) {
+                LocalDateTime ldt = LocalDateTime.parse(rs.getString("stateExtraInfo"));
+                Cancelled cancelled = new Cancelled(ldt);
+                lesson.setState(cancelled);
+            } else if (Objects.equals(rs.getString("state"), "Completed")) {
+                LocalDateTime ldt = LocalDateTime.parse(rs.getString("stateExtraInfo"));
+                Completed completed = new Completed(ldt);
+                lesson.setState(completed);
+            }else {
+                Available available = new Available();
+                lesson.setState(available);
+            }
+
+            // This recreates the tags of the lesson
+            List<Tag> lessonTags = getTagsByLesson(id);
+            for (Tag t: lessonTags){
+                lesson.addTag(t);
+            }
+
         }
+
 
         rs.close();
         ps.close();
 
         Database.closeConnection(con);
         return lesson;
+    }
+
+    private List<Tag> getTagsByLesson(Integer idLesson) throws SQLException{
+        Connection con = Database.getConnection();
+        List<Tag> tags = new ArrayList<>();
+        PreparedStatement ps = con.prepareStatement("SELECT * FROM lessonsTags JOIN tags ON lessonsTags.idTag = tags.idTag WHERE idLesson = ?");
+        ps.setInt(1, idLesson);
+        ResultSet rs = ps.executeQuery();
+
+        // This recreates the tags of the lesson, is inside the if because if the lesson is null, you have no tags
+        while (rs.next()){
+            if(Objects.equals(rs.getString("tagType"), "Online")){
+                TagIsOnline tio = new TagIsOnline(rs.getString("tag"));
+                tags.add(tio);
+            } else if (Objects.equals(rs.getString("tagType"), "Level")) {
+                TagLevel tl = new TagLevel(rs.getString("tag"));
+                tags.add(tl);
+            } else if (Objects.equals(rs.getString("tagType"), "Subject")) {
+                TagSubject ts = new TagSubject(rs.getString("tag"));
+                tags.add(ts);
+            } else if (Objects.equals(rs.getString("tagType"), "Zone")) {
+                TagZone tz = new TagZone(rs.getString("tag"));
+                tags.add(tz);
+            }
+        }
+
+        return tags;
     }
 
     // Get all lessons
@@ -59,6 +112,30 @@ public class SQLiteLessonDAO implements LessonDAO{
                     rs.getDouble("price"),
                     rs.getString("tutorCF")
             );
+
+            // This recreates the state of the lesson
+            if (Objects.equals(rs.getString("state"), "Booked")){
+                String a = rs.getString("stateExtraInfo");
+                Booked booked = new Booked(a);
+                lesson.setState(booked);
+            } else if (Objects.equals(rs.getString("state"), "Cancelled")) {
+                LocalDateTime ldt = LocalDateTime.parse(rs.getString("stateExtraInfo"));
+                Cancelled cancelled = new Cancelled(ldt);
+                lesson.setState(cancelled);
+            } else if (Objects.equals(rs.getString("state"), "Completed")) {
+                LocalDateTime ldt = LocalDateTime.parse(rs.getString("stateExtraInfo"));
+                Completed completed = new Completed(ldt);
+                lesson.setState(completed);
+            }else {
+                Available available = new Available();
+                lesson.setState(available);
+            }
+
+            // This recreates the tags of the lesson
+            List<Tag> lessonTags = getTagsByLesson(rs.getInt("id"));
+            for (Tag t: lessonTags){
+                lesson.addTag(t);
+            }
 
             lessons.add(lesson);
         }
@@ -124,5 +201,39 @@ public class SQLiteLessonDAO implements LessonDAO{
         return rows > 0;
     }
 
+    @Override
+    // Get all the lessons created by a Tutor
+    public List<Lesson> getTutorLessons(String tCF) throws SQLException {
+        Connection con = Database.getConnection();
+        //TODO riguarda questa query
+        PreparedStatement ps = con.prepareStatement("SELECT * FROM advertisements LEFT JOIN lessons ON advertisements.id == lessons.adID WHERE tutorCF = ? AND lessons.studentCF == null");
+        ps.setString(1, tCF);
+        ResultSet rs = ps.executeQuery();
+
+        List<Lesson> advertisements = new ArrayList<>();
+        while (rs.next()) {
+            advertisements.add(this.get(rs.getInt("id"))); // TODO riguardare
+        }
+
+        rs.close();
+        ps.close();
+        Database.closeConnection(con);
+        return advertisements;
+    }
+
+    @Override
+    public int getLastAdID() throws SQLException{
+        Connection connection = Database.getConnection();
+        Statement stmt = connection.createStatement();
+        ResultSet rs = stmt.executeQuery("SELECT MAX(id) FROM main.advertisements");
+        int id = rs.getInt(1) + 1;
+
+        rs.close();
+        stmt.close();
+        Database.closeConnection(connection);
+        return id;
+    }
+
+    //TODO changeState
 
 }

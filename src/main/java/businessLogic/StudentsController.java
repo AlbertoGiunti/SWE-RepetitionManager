@@ -18,4 +18,6 @@ public class StudentsController extends PeopleController<Student>{
         Student s = new Student(cf, name, surname, level);
         return super.addPerson(s);
     }
+
+
 }
