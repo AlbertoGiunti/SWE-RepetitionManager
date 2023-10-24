@@ -7,8 +7,8 @@ public class Available extends State {
     }
 
     @Override
-    public String getStateInfo(){
-        return "This lesson is" + state + ".";
+    public String getExtraInfo(){
+        return null;
     }
 
 }

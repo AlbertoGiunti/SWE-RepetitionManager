@@ -14,8 +14,8 @@ public class Booked extends State {
     }
 
     @Override
-    public String getStateInfo(){
-        return "This lesson is" + state + " by " + studentCF + ".";
+    public String getExtraInfo(){
+        return this.studentCF;
     }
 
 

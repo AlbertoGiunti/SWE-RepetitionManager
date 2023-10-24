@@ -3,6 +3,7 @@ package dao;
 import domainModel.Lesson;
 import domainModel.State.*;
 import domainModel.Tags.*;
+import dao.TagDAO;
 
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -10,14 +11,43 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+
 public class SQLiteLessonDAO implements LessonDAO{
+
+    private final TagDAO tagDAO;
+
+    public SQLiteLessonDAO(TagDAO tagDAO){
+        this.tagDAO = tagDAO;
+    }
+
+    // This recreates the lesson state
+    private void getLessonState(ResultSet rs, Lesson lesson) throws SQLException {
+        if (Objects.equals(rs.getString("state"), "Booked")){
+            String a = rs.getString("stateExtraInfo");
+            Booked booked = new Booked(a);
+            lesson.setState(booked);
+        } else if (Objects.equals(rs.getString("state"), "Cancelled")) {
+            LocalDateTime ldt = LocalDateTime.parse(rs.getString("stateExtraInfo"));
+            Cancelled cancelled = new Cancelled(ldt);
+            lesson.setState(cancelled);
+        } else if (Objects.equals(rs.getString("state"), "Completed")) {
+            LocalDateTime ldt = LocalDateTime.parse(rs.getString("stateExtraInfo"));
+            Completed completed = new Completed(ldt);
+            lesson.setState(completed);
+        }else {
+            Available available = new Available();
+            lesson.setState(available);
+        }
+    }
+
+
 
     // Get a specific lesson
     @Override
-    public Lesson get(Integer id) throws SQLException {
+    public Lesson get(Integer id) throws Exception {
         Connection con = Database.getConnection();
         Lesson lesson = null;
-        PreparedStatement ps = con.prepareStatement("SELECT * FROM lessons WHERE id = ?");
+        PreparedStatement ps = con.prepareStatement("SELECT * FROM lessons WHERE idLesson = ?");
         ps.setInt(1, id);
         ResultSet rs = ps.executeQuery();
 
@@ -34,25 +64,10 @@ public class SQLiteLessonDAO implements LessonDAO{
             );
 
             // This recreates the state of the lesson
-            if (Objects.equals(rs.getString("state"), "Booked")){
-                String a = rs.getString("stateExtraInfo");
-                Booked booked = new Booked(a);
-                lesson.setState(booked);
-            } else if (Objects.equals(rs.getString("state"), "Cancelled")) {
-                LocalDateTime ldt = LocalDateTime.parse(rs.getString("stateExtraInfo"));
-                Cancelled cancelled = new Cancelled(ldt);
-                lesson.setState(cancelled);
-            } else if (Objects.equals(rs.getString("state"), "Completed")) {
-                LocalDateTime ldt = LocalDateTime.parse(rs.getString("stateExtraInfo"));
-                Completed completed = new Completed(ldt);
-                lesson.setState(completed);
-            }else {
-                Available available = new Available();
-                lesson.setState(available);
-            }
+            this.getLessonState(rs, lesson);
 
             // This recreates the tags of the lesson
-            List<Tag> lessonTags = getTagsByLesson(id);
+            List<Tag> lessonTags = this.tagDAO.getTagsByLesson(lesson.getIdLesson());
             for (Tag t: lessonTags){
                 lesson.addTag(t);
             }
@@ -67,36 +82,9 @@ public class SQLiteLessonDAO implements LessonDAO{
         return lesson;
     }
 
-    private List<Tag> getTagsByLesson(Integer idLesson) throws SQLException{
-        Connection con = Database.getConnection();
-        List<Tag> tags = new ArrayList<>();
-        PreparedStatement ps = con.prepareStatement("SELECT * FROM lessonsTags JOIN tags ON lessonsTags.idTag = tags.idTag WHERE idLesson = ?");
-        ps.setInt(1, idLesson);
-        ResultSet rs = ps.executeQuery();
-
-        // This recreates the tags of the lesson, is inside the if because if the lesson is null, you have no tags
-        while (rs.next()){
-            if(Objects.equals(rs.getString("tagType"), "Online")){
-                TagIsOnline tio = new TagIsOnline(rs.getString("tag"));
-                tags.add(tio);
-            } else if (Objects.equals(rs.getString("tagType"), "Level")) {
-                TagLevel tl = new TagLevel(rs.getString("tag"));
-                tags.add(tl);
-            } else if (Objects.equals(rs.getString("tagType"), "Subject")) {
-                TagSubject ts = new TagSubject(rs.getString("tag"));
-                tags.add(ts);
-            } else if (Objects.equals(rs.getString("tagType"), "Zone")) {
-                TagZone tz = new TagZone(rs.getString("tag"));
-                tags.add(tz);
-            }
-        }
-
-        return tags;
-    }
-
     // Get all lessons
     @Override
-    public List<Lesson> getAll() throws SQLException{
+    public List<Lesson> getAll() throws Exception {
         Connection con = Database.getConnection();
         List<Lesson> lessons = new ArrayList<>();
         Statement stmt = con.createStatement();
@@ -114,56 +102,53 @@ public class SQLiteLessonDAO implements LessonDAO{
             );
 
             // This recreates the state of the lesson
-            if (Objects.equals(rs.getString("state"), "Booked")){
-                String a = rs.getString("stateExtraInfo");
-                Booked booked = new Booked(a);
-                lesson.setState(booked);
-            } else if (Objects.equals(rs.getString("state"), "Cancelled")) {
-                LocalDateTime ldt = LocalDateTime.parse(rs.getString("stateExtraInfo"));
-                Cancelled cancelled = new Cancelled(ldt);
-                lesson.setState(cancelled);
-            } else if (Objects.equals(rs.getString("state"), "Completed")) {
-                LocalDateTime ldt = LocalDateTime.parse(rs.getString("stateExtraInfo"));
-                Completed completed = new Completed(ldt);
-                lesson.setState(completed);
-            }else {
-                Available available = new Available();
-                lesson.setState(available);
-            }
+            this.getLessonState(rs, lesson);
 
             // This recreates the tags of the lesson
-            List<Tag> lessonTags = getTagsByLesson(rs.getInt("id"));
+            List<Tag> lessonTags = this.tagDAO.getTagsByLesson(lesson.getIdLesson());
             for (Tag t: lessonTags){
                 lesson.addTag(t);
             }
 
             lessons.add(lesson);
         }
+
         rs.close();
         stmt.close();
         Database.closeConnection(con);
         return lessons;
+
     }
 
-    // Insert method
 
+    // Insert method
     @Override
-    public void insert(Lesson lesson) throws SQLException {
+    public void insert(Lesson lesson) throws Exception {
         Connection con = Database.getConnection();
-        PreparedStatement ps = con.prepareStatement("INSERT INTO lessons (title, description, startTime, endTime, price, tutorCF) VALUES (?, ?, ?, ?, ?, ?)");
-        // id is not needed because is autoincremented
+        PreparedStatement ps = con.prepareStatement("INSERT INTO lessons (title, description, startTime, endTime, price, tutorCF, state, stateExtraInfo) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        // id is not needed because is autoincrement
         ps.setString(1, lesson.getTitle());
         ps.setString(2, lesson.getDescription());
         ps.setString(3, lesson.getStartTime().toString());
         ps.setString(4, lesson.getEndTime().toString());
         ps.setDouble(5, lesson.getPrice());
         ps.setString(6, lesson.getTutorCF());
+        ps.setString(7, lesson.getGetState());
+        ps.setString(8, lesson.getStateExtraInfo());
 
         ps.executeUpdate();
 
         ps.close();
+
+        for (Tag t : lesson.getTags()){
+            this.tagDAO.addTag(lesson, t);
+        }
+
+        // Add also the tags
+
         Database.closeConnection(con);
     }
+
 
     // Update method
     // TODO Solo il proprietario può modificare la lezione
@@ -171,29 +156,34 @@ public class SQLiteLessonDAO implements LessonDAO{
     public void update(Lesson lesson) throws SQLException {
         Connection con = Database.getConnection();
         PreparedStatement ps = con.prepareStatement(
-                "UPDATE lessons SET title = ?, description = ?, startTime = ?, endTime = ?, price = ? WHERE id =?"); // Non ho messo tutorCF, non ha senso
+                "UPDATE lessons SET title = ?, description = ?, startTime = ?, endTime = ?, price = ? WHERE idLesson =?"); // Non ho messo tutorCF, non ha senso
         ps.setString(1, lesson.getTitle());
         ps.setString(2, lesson.getDescription());
         ps.setString(3, lesson.getStartTime().toString());
         ps.setString(4, lesson.getEndTime().toString());
         ps.setDouble(5, lesson.getPrice());
-        ps.setInt(6, lesson.getId());
+        ps.setInt(6, lesson.getIdLesson());
 
         ps.close();
+
         Database.closeConnection(con);
     }
 
     // Delete method
     @Override
-    public boolean delete(Integer id) throws SQLException {
+    public boolean delete(Integer idLesson) throws Exception {
         // Usa il metodo get scritto prima
-        Lesson lesson = get(id);
+        Lesson lesson = get(idLesson);
         if (lesson == null) {
             return false;
         }
         Connection con = Database.getConnection();
-        PreparedStatement ps = con.prepareStatement("DELETE FROM lessons WHERE id = ?");
-        ps.setInt(1, id);
+        PreparedStatement ps0 = con.prepareStatement("DELETE FROM lessonsTags WHERE idLesson = ?");
+        ps0.setInt(1, idLesson);
+        PreparedStatement ps = con.prepareStatement("DELETE FROM lessons WHERE idLesson = ?");
+        ps.setInt(1, idLesson);
+
+        ps0.executeUpdate();
         int rows = ps.executeUpdate();
 
         ps.close();
@@ -203,29 +193,29 @@ public class SQLiteLessonDAO implements LessonDAO{
 
     @Override
     // Get all the lessons created by a Tutor
-    public List<Lesson> getTutorLessons(String tCF) throws SQLException {
+    public List<Lesson> getTutorLessonsByState(String tCF, State state) throws Exception {
         Connection con = Database.getConnection();
-        //TODO riguarda questa query
-        PreparedStatement ps = con.prepareStatement("SELECT * FROM advertisements LEFT JOIN lessons ON advertisements.id == lessons.adID WHERE tutorCF = ? AND lessons.studentCF == null");
+        PreparedStatement ps = con.prepareStatement("SELECT * FROM lessons WHERE tutorCF = ? AND state = ?");
         ps.setString(1, tCF);
+        ps.setString(2, state.getState());
         ResultSet rs = ps.executeQuery();
 
-        List<Lesson> advertisements = new ArrayList<>();
+        List<Lesson> lessons = new ArrayList<>();
         while (rs.next()) {
-            advertisements.add(this.get(rs.getInt("id"))); // TODO riguardare
+            lessons.add(this.get(rs.getInt("idLesson")));
         }
 
         rs.close();
         ps.close();
         Database.closeConnection(con);
-        return advertisements;
+        return lessons;
     }
 
     @Override
-    public int getLastAdID() throws SQLException{
+    public int getLastLessonID() throws SQLException{
         Connection connection = Database.getConnection();
         Statement stmt = connection.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT MAX(id) FROM main.advertisements");
+        ResultSet rs = stmt.executeQuery("SELECT MAX(idLesson) FROM main.lessons");
         int id = rs.getInt(1) + 1;
 
         rs.close();
@@ -234,6 +224,20 @@ public class SQLiteLessonDAO implements LessonDAO{
         return id;
     }
 
-    //TODO changeState
+
+    // This method change state
+    @Override
+    public void changeState(Lesson lesson, State newState) throws SQLException{
+        Connection con = Database.getConnection();
+        PreparedStatement ps =con.prepareStatement("UPDATE lessons SET state = ?, stateExtraInfo = ? WHERE idLesson = ?");
+        ps.setString(1, newState.getState());
+        ps.setString(2, newState.getExtraInfo());
+        ps.setInt(3, lesson.getIdLesson());
+
+        ps.executeUpdate();
+
+        ps.close();
+        Database.closeConnection(con);
+    }
 
 }

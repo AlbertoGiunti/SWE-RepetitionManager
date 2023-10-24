@@ -17,7 +17,7 @@ public class Cancelled extends State {
     }
 
     @Override
-    public String getStateInfo(){
-        return "This lesson got" + state + " at " + cancelledTime + ".";
+    public String getExtraInfo(){
+        return this.cancelledTime.toString();
     }
 }

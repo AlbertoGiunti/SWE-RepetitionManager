@@ -7,5 +7,5 @@ public abstract class State {
         return this.state;
     }
 
-    public abstract String getStateInfo();
+    public abstract String getExtraInfo();
 }

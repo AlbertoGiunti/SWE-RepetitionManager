@@ -32,6 +32,8 @@ public class LessonsController {
      * @throws Exception If the tutor is not found, bubbles up exceptions of LessonDAO::insert()
      * @throws IllegalArgumentException If the tutor is already occupied in the given time range
      */
+
+    /**
     public int addLesson(String title, String description, LocalDateTime startTime, LocalDateTime endTime, double price, String tutorCF) throws Exception{
         Tutor tutor = tutorsController.getPerson(tutorCF);
         if (tutor == null)
@@ -47,4 +49,5 @@ public class LessonsController {
         }
 
     }
+     */
 }

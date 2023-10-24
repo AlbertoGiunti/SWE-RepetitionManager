@@ -5,12 +5,11 @@ import domainModel.Tags.Tag;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.time.LocalDateTime;
 
 public class Lesson {
     // This is the ID of the advertisement
-    private final int id;
+    private final int idLesson;
     // This is the title of the advertisement
     private String title;
     // This is the description of the advertisement
@@ -28,8 +27,8 @@ public class Lesson {
     List<Tag> tags = new ArrayList<>();
 
 
-    public Lesson(int id, String title, String description, LocalDateTime startTime, LocalDateTime endTime, double price, String tutorCF) {
-        this.id = id;
+    public Lesson(int idLesson, String title, String description, LocalDateTime startTime, LocalDateTime endTime, double price, String tutorCF) {
+        this.idLesson = idLesson;
         this.title = title;
         this.description = description;
         this.startTime = startTime;
@@ -42,8 +41,8 @@ public class Lesson {
 
     // GETTERS
 
-    public int getId() {
-        return id;
+    public int getIdLesson() {
+        return idLesson;
     }
 
     public String getTitle() {
@@ -72,6 +71,10 @@ public class Lesson {
 
     public String getGetState() {
         return state.getState();
+    }
+
+    public String getStateExtraInfo(){
+        return state.getExtraInfo();
     }
 
     public List<Tag> getTags(){

@@ -1,32 +1,36 @@
 package dao;
 
 import domainModel.Lesson;
+import domainModel.State.State;
 import domainModel.Tags.*;
 
 import java.util.List;
 
 public interface LessonDAO extends DAO <Lesson, Integer> {
     /**
-     * Get all tutor's advertisements
-     *
-     * @param tutorCF the fiscal code of the tutor who created the advertisement
-     */
-    public List<Lesson> getTutorAdvertisements(String tutorCF) throws Exception;
-
-    /**
-     * Get last inserted advertisement
+     * Get last inserted lesson
      */
     public int getLastLessonID() throws Exception;
 
-    /**
-     * Add a tag to the lesson
-     *
-     * @param idLesson The id of the lesson
-     * @param newTag The tag to add
-     */
-    public void addTag(int idLesson, Tag newTag);
 
     /**
-     * Change lesson state
+     * Get all the lessons of a tutor in a specific state
+     *
+     * @param tCF
+     * @param state
+     * @return
+     * @throws Exception
      */
+    public List<Lesson> getTutorLessonsByState(String tCF, State state) throws Exception;
+
+    /**
+     * Change the state of a lesson
+     *
+     * @param lesson
+     * @param newState
+     * @throws Exception
+     */
+    public void changeState(Lesson lesson, State newState) throws Exception;
+
+
 }

@@ -16,7 +16,7 @@ public class Completed extends State {
     }
 
     @Override
-    public String getStateInfo(){
-        return "This lesson got" + state + " at " + completedTime + ".";
+    public String getExtraInfo(){
+        return this.completedTime.toString();
     }
 }
