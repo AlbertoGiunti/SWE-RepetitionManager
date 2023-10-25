@@ -69,7 +69,7 @@ public class Lesson {
         return tutorCF;
     }
 
-    public String getGetState() {
+    public String getState() {
         return state.getState();
     }
 

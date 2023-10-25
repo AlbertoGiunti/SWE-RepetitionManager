@@ -106,12 +106,8 @@ public class SQLiteTagDAO implements TagDAO{
         if (tag == null) {
             return false;
         }
-        Connection con = Database.getConnection();
-        PreparedStatement ps0 = con.prepareStatement("DELETE FROM lessonsTags WHERE idTag = ?");
-        ps0.setInt(1, idTag);
-        ps0.executeUpdate();
-        ps0.close();
 
+        Connection con = Database.getConnection();
         PreparedStatement ps = con.prepareStatement("DELETE FROM tags WHERE idTag = ?");
         ps.setInt(1, idTag);
         int rows = ps.executeUpdate();

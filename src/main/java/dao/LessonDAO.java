@@ -24,13 +24,20 @@ public interface LessonDAO extends DAO <Lesson, Integer> {
     public List<Lesson> getTutorLessonsByState(String tCF, State state) throws Exception;
 
     /**
+     * Get all the booked lessons of a student
+     *
+     * @param sCF
+     * @return
+     * @throws Exception
+     */
+    public List<Lesson> getStudentBookedLessons(String sCF) throws Exception;
+
+    /**
      * Change the state of a lesson
      *
-     * @param lesson
+     * @param idLesson
      * @param newState
      * @throws Exception
      */
-    public void changeState(Lesson lesson, State newState) throws Exception;
-
-
+    public void changeState(Integer idLesson, State newState) throws Exception;
 }
