@@ -22,6 +22,7 @@ public class LessonsController {
 
     private final PeopleController<Tutor> tutorsController;
 
+
     public LessonsController(LessonDAO lessonDAO, TagDAO tagDAO, PeopleController<Tutor> tutorsController){
         this.lessonDAO = lessonDAO;
         this.tagDAO =  tagDAO;
@@ -57,8 +58,8 @@ public class LessonsController {
             }
         }
 
-        Lesson l = new Lesson(lessonDAO.getLastLessonID(), title, description, startTime, endTime, price, tutorCF);
-        // Aggiungo i tag alla lezione che poi li metterà nel database
+        Lesson l = new Lesson(lessonDAO.getNextLessonID(), title, description, startTime, endTime, price, tutorCF);
+        // Aggiungo i tag alla lezione che poi creerà il collegamento tag-lezione
         for (Tag t : tags){
             l.addTag(t);
         }
@@ -110,7 +111,13 @@ public class LessonsController {
         return lessonDAO.getTutorLessonsByState(tutorCF, state);
     }
 
-
+    /**
+     * This method change the lesson state.
+     *
+     * @param idLesson
+     * @param newState
+     * @throws Exception
+     */
     public void changeLessonState(int idLesson, State newState) throws Exception {
         Lesson lesson = null;
         lesson = lessonDAO.get(idLesson);
@@ -151,6 +158,12 @@ public class LessonsController {
 
             default:
                 throw new IllegalArgumentException("Invalid state");
+        }
+    }
+
+    public void attachTag(int idLesson, Tag newTag) throws Exception {
+        if (this.tagDAO.getTag(newTag.getIdTag()) == null){
+
         }
     }
 }

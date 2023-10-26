@@ -19,6 +19,14 @@ public class BookingsController {
         this.lessonDAO = lessonDAO;
     }
 
+    /**
+     *
+     *
+     * @param studentCF This is the Fiscal Code of the student
+     * @param idLesson This is the lesson id
+     * @throws Exception when idLesson or studentCF don't exist and bubbles up exceptions of LessonsController::changeLessonState, LessonDAO::changeState
+     */
+
     public void bookLesson(String studentCF, int idLesson) throws Exception {
         Lesson lesson = lessonsController.getLesson(idLesson);
         Student student = studentsController.getPerson(studentCF);
@@ -48,9 +56,9 @@ public class BookingsController {
     /**
      * The student cancels the reservation, and the lesson becomes available again
      *
-     * @param studentCF
-     * @param idLesson
-     * @throws Exception
+     * @param studentCF This is the Fiscal Code of the student
+     * @param idLesson This is the lesson id
+     * @throws Exception bubbles up exceptions of LessonsController::changeLessonState and LessonDAO::changeState
      */
     public void deleteLessonBooking(String studentCF, int idLesson) throws Exception{
         Available av = new Available();
@@ -60,9 +68,9 @@ public class BookingsController {
     /**
      * Get all the lessons booked by a student.
      *
-     * @param studentCF
-     * @return
-     * @throws Exception
+     * @param studentCF This is the Fiscal Code of the student
+     * @return All the lessons booked by the student
+     * @throws Exception bubbles up exceptions of LessonDAO::getStudentBookedLesson
      */
     public List<Lesson> getStudentBookedLessons(String studentCF) throws Exception{
         return lessonDAO.getStudentBookedLessons(studentCF);

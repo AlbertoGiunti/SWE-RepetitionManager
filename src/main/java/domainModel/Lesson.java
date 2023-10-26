@@ -6,6 +6,7 @@ import domainModel.Tags.Tag;
 import java.util.ArrayList;
 import java.util.List;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 public class Lesson {
     // This is the ID of the advertisement
@@ -37,6 +38,9 @@ public class Lesson {
         this.tutorCF = tutorCF;
 
         this.state = new Available();
+
+        if (endTime.equals(startTime) || endTime.isBefore(startTime))
+            throw new IllegalArgumentException("endTime should be greater than startTime");
     }
 
     // GETTERS
@@ -91,10 +95,14 @@ public class Lesson {
         this.tags.add(newTag);
     }
 
-    public boolean removeTag(String tagType, String tag){
+    public boolean removeTag(String tagType, String tag){   // tagType sono: Level, Subject, IsOnline, Zone.
+                                                            // tag esempi: Firenze, Matematica, True, Elementari ecc...
+        if (!Objects.equals(tagType, "Level") || !Objects.equals(tagType, "Subject") || !Objects.equals(tagType, "Zone") || !Objects.equals(tagType, "IsOnline")){
+            throw new IllegalArgumentException("Invalid tagType");
+        }
         boolean removed = false;
         for (Tag t: tags){
-            if(t.getTypeOfTag() == tagType && t.getTag() == tag){
+            if(Objects.equals(t.getTypeOfTag(), tagType) && Objects.equals(t.getTag(), tag)){  // tag esempi: Firenze, Matematica, True, Elementari ecc...
                 this.tags.remove(t);
                 removed = true;
             }

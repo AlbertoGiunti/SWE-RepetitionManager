@@ -2,7 +2,6 @@ package dao;
 
 import domainModel.Lesson;
 import domainModel.State.State;
-import domainModel.Tags.*;
 
 import java.util.List;
 
@@ -10,7 +9,7 @@ public interface LessonDAO extends DAO <Lesson, Integer> {
     /**
      * Get last inserted lesson
      */
-    public int getLastLessonID() throws Exception;
+    public int getNextLessonID() throws Exception;
 
 
     /**

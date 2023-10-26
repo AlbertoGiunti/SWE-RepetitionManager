@@ -1,6 +1,5 @@
 package dao;
 
-import domainModel.Lesson;
 import domainModel.Tags.*;
 
 import java.util.List;
@@ -13,7 +12,18 @@ public interface TagDAO {
      * @param idTag the id of the tag
      * @throws Exception
      */
-    public Tag getTag(Integer idTag) throws Exception;
+    public Tag getTagByID(Integer idTag) throws Exception;
+
+    /**
+     * Get tag by his info
+     *
+     * @param tag
+     * @param tagType
+     *
+     * @return A single tag
+     * @throws Exception
+     */
+    public Tag getTagByInfo(String tag, String tagType) throws Exception;
 
     /**
      * Get all existing tags
@@ -24,16 +34,24 @@ public interface TagDAO {
     public List<Tag> getAllTags() throws Exception;
 
     /**
-     * Add a tag to a lesson, also match the tag to the lesson
+     * Add a tag to the DataBase
      *
-     * @param lesson
      * @param tag
      * @throws Exception
      */
-    public void addTag(Lesson lesson, Tag tag) throws Exception;
+    public void addTag(Tag tag) throws Exception;
 
     /**
-     * Remove a tag
+     * Attach a tag to a lesson
+     *
+     * @param idTag
+     * @param idLesson
+     * @throws Exception
+     */
+    public void attachTag(Integer idTag, Integer idLesson) throws Exception;
+
+    /**
+     * Remove a tag from the db
      *
      * @param idTag
      * @return
@@ -42,12 +60,21 @@ public interface TagDAO {
     public boolean removeTag(Integer idTag) throws Exception;
 
     /**
+     * Detach a tag from a lesson
+     *
+     * @param idTag
+     * @param idLesson
+     * @throws Exception
+     */
+    public void detachTag(Integer idTag, Integer idLesson) throws Exception;
+
+    /**
      * Get the id of the last tag added
      *
      * @return
      * @throws Exception
      */
-    public int getLastTagID() throws Exception;
+    public int getNextTagID() throws Exception;
 
     /**
      * Get all the tags of a specific lesson

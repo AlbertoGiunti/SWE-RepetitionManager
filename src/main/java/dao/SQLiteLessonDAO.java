@@ -73,7 +73,6 @@ public class SQLiteLessonDAO implements LessonDAO{
 
         }
 
-
         rs.close();
         ps.close();
 
@@ -140,10 +139,13 @@ public class SQLiteLessonDAO implements LessonDAO{
         ps.close();
 
         for (Tag t : lesson.getTags()){
-            this.tagDAO.addTag(lesson, t);
+            // Add the tag to the DB if it does not exist
+            if (this.tagDAO.getTagByID(t.getIdTag()) == null){
+                this.tagDAO.addTag(t);
+            }
+            // Attach the tag at the lesson
+            this.tagDAO.attachTag(this.getNextLessonID(), t.getIdTag());
         }
-
-        // Add also the tags
 
         Database.closeConnection(con);
     }
@@ -226,7 +228,7 @@ public class SQLiteLessonDAO implements LessonDAO{
     }
 
     @Override
-    public int getLastLessonID() throws SQLException{
+    public int getNextLessonID() throws SQLException{
         Connection connection = Database.getConnection();
         Statement stmt = connection.createStatement();
         ResultSet rs = stmt.executeQuery("SELECT MAX(idLesson) FROM main.lessons");
