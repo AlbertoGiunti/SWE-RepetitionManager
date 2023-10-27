@@ -52,7 +52,7 @@ public class SQLiteStudentDAO implements StudentDAO {
                     rs.getString("cf"),
                     rs.getString("name"),
                     rs.getString("surname"),
-                    rs.getString("iban")
+                    rs.getString("level")
             ));
         }
 

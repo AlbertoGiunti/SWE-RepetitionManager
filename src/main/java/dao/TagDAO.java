@@ -44,11 +44,12 @@ public interface TagDAO {
     /**
      * Remove a tag from the db
      *
-     * @param tagToRemove
+     * @param tag
+     * @param tagType
      * @return
      * @throws Exception
      */
-    public boolean removeTag(Tag tagToRemove) throws Exception;
+    public boolean removeTag(String tag, String tagType) throws Exception;
 
     /**
      * Detach a tag from a lesson

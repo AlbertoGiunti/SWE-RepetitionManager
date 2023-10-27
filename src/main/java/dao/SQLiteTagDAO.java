@@ -109,11 +109,14 @@ public class SQLiteTagDAO implements TagDAO{
     }
 
     @Override
-    public boolean removeTag(Tag tagToRemove) throws SQLException {
+    public boolean removeTag(String tag, String tagType) throws SQLException {
+        Tag tagToRemove = getTag(tag, tagType);
+        if (tagToRemove == null) return false;
+
         Connection con = Database.getConnection();
         PreparedStatement ps = con.prepareStatement("DELETE FROM tags WHERE tag = ? AND tagType = ?");
         ps.setString(1, tagToRemove.getTag());
-        ps.setString(1, tagToRemove.getTypeOfTag());
+        ps.setString(2, tagToRemove.getTypeOfTag());
         int rows = ps.executeUpdate();
 
         ps.close();
@@ -131,7 +134,7 @@ public class SQLiteTagDAO implements TagDAO{
         ps.close();
 
         con.close();
-        return rows > 1;
+        return rows > 0;
     }
 
 
@@ -140,7 +143,7 @@ public class SQLiteTagDAO implements TagDAO{
     public List<Tag> getTagsByLesson(Integer idLesson) throws SQLException {
         Connection con = Database.getConnection();
         List<Tag> tags = new ArrayList<>();
-        PreparedStatement ps = con.prepareStatement("SELECT * FROM lessonsTags JOIN tags ON lessonsTags.tag = tags.tag AND lessonsTags.tagType = tags.tagType WHERE idLesson = ?");
+        PreparedStatement ps = con.prepareStatement("SELECT * FROM lessonsTags WHERE idLesson = ?");
         ps.setInt(1, idLesson);
         ResultSet rs = ps.executeQuery();
 

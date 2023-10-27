@@ -38,6 +38,6 @@ public class TagsController {
     }
 
     public boolean deleteTag(Tag tagToRemove) throws Exception{
-        return this.tagDAO.removeTag(tagToRemove);
+        return this.tagDAO.removeTag(tagToRemove.getTag(), tagToRemove.getTypeOfTag());
     }
 }

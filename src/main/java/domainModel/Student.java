@@ -4,8 +4,8 @@ public class Student extends Person{
     private String level;
 
     // Constructor
-    public Student(String CFT, String name, String surname, String level) {
-        super(CFT, name, surname);
+    public Student(String CFS, String name, String surname, String level) {
+        super(CFS, name, surname);
         this.level = level;
     }
 

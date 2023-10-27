@@ -43,17 +43,17 @@ public class SQLiteLessonDAO implements LessonDAO{
 
     // Get a specific lesson
     @Override
-    public Lesson get(Integer id) throws Exception {
+    public Lesson get(Integer idLesson) throws Exception {
         Connection con = Database.getConnection();
         Lesson lesson = null;
         PreparedStatement ps = con.prepareStatement("SELECT * FROM lessons WHERE idLesson = ?");
-        ps.setInt(1, id);
+        ps.setInt(1, idLesson);
         ResultSet rs = ps.executeQuery();
 
         if(rs.next()){
             // This recreates the attributes of the lesson
             lesson = new Lesson(
-                    rs.getInt("id"),
+                    rs.getInt("idLesson"),
                     rs.getString("title"),
                     rs.getString("description"),
                     LocalDateTime.parse(rs.getString("startTime")),
@@ -90,7 +90,7 @@ public class SQLiteLessonDAO implements LessonDAO{
 
         while (rs.next()){
             Lesson lesson = new Lesson(
-                    rs.getInt("id"),
+                    rs.getInt("idLesson"),
                     rs.getString("title"),
                     rs.getString("description"),
                     LocalDateTime.parse(rs.getString("startTime")),
@@ -157,13 +157,14 @@ public class SQLiteLessonDAO implements LessonDAO{
     public void update(Lesson lesson) throws SQLException {
         Connection con = Database.getConnection();
         PreparedStatement ps = con.prepareStatement(
-                "UPDATE lessons SET title = ?, description = ?, startTime = ?, endTime = ?, price = ? WHERE idLesson =?"); // Non ho messo tutorCF, non ha senso
+                "UPDATE lessons SET title = ?, description = ?, startTime = ?, endTime = ?, price = ? WHERE idLesson = ?"); // Non ho messo tutorCF, non ha senso
         ps.setString(1, lesson.getTitle());
         ps.setString(2, lesson.getDescription());
         ps.setString(3, lesson.getStartTime().toString());
         ps.setString(4, lesson.getEndTime().toString());
         ps.setDouble(5, lesson.getPrice());
         ps.setInt(6, lesson.getIdLesson());
+        ps.executeUpdate();
 
         ps.close();
 
