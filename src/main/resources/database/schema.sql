@@ -2,11 +2,12 @@
 -- Syntax: SQLite
 
 -- Drop tables if they already exist
+DROP TABLE IF EXISTS tags;
+DROP TABLE IF EXISTS lessonsTags;
 DROP TABLE IF EXISTS tutors;
 DROP TABLE IF EXISTS students;
 DROP TABLE IF EXISTS lessons;
-DROP TABLE IF EXISTS tags;
-DROP TABLE IF EXISTS lessonsTags;
+
 
 -- Table: tutors
 CREATE TABLE IF NOT EXISTS tutors
@@ -45,17 +46,18 @@ CREATE TABLE IF NOT EXISTS lessons
 -- Table: tags
 CREATE TABLE IF NOT EXISTS tags
 (
-    idTag       INTEGER PRIMARY KEY AUTOINCREMENT,
     tag         TEXT NOT NULL,
-    tagType     TEXT NOT NULL
+    tagType     TEXT NOT NULL,
+    PRIMARY KEY(tag, tagType)
 );
 
 -- Table: lessonsTags
 CREATE TABLE IF NOT EXISTS lessonsTags
 (
-    idTag       INTEGER NOT NULL,
+    tag         TEXT NOT NULL,
+    tagType     TEXT NOT NULL,
     idLesson    INTEGER NOT NULL,
-    PRIMARY KEY (idTag, idLesson),
-    FOREIGN KEY (idTag) REFERENCES tags (idTag) ON UPDATE CASCADE ON DELETE CASCADE,
+    PRIMARY KEY (tag, tagType, idLesson),
+    FOREIGN KEY (tag, tagType) REFERENCES tags (tag, tagType) ON UPDATE CASCADE ON DELETE CASCADE,
     FOREIGN KEY (idLesson) REFERENCES lessons (idLesson) ON UPDATE CASCADE ON DELETE CASCADE
 );

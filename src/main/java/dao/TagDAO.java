@@ -5,15 +5,6 @@ import domainModel.Tags.*;
 import java.util.List;
 
 public interface TagDAO {
-
-    /**
-     * Get a tag by his id
-     *
-     * @param idTag the id of the tag
-     * @throws Exception
-     */
-    public Tag getTagByID(Integer idTag) throws Exception;
-
     /**
      * Get tag by his info
      *
@@ -23,7 +14,7 @@ public interface TagDAO {
      * @return A single tag
      * @throws Exception
      */
-    public Tag getTagByInfo(String tag, String tagType) throws Exception;
+    public Tag getTag(String tag, String tagType) throws Exception;
 
     /**
      * Get all existing tags
@@ -44,37 +35,30 @@ public interface TagDAO {
     /**
      * Attach a tag to a lesson
      *
-     * @param idTag
+     * @param tagToAttach
      * @param idLesson
      * @throws Exception
      */
-    public void attachTag(Integer idTag, Integer idLesson) throws Exception;
+    public void attachTag(Integer idLesson, Tag tagToAttach) throws Exception;
 
     /**
      * Remove a tag from the db
      *
-     * @param idTag
+     * @param tagToRemove
      * @return
      * @throws Exception
      */
-    public boolean removeTag(Integer idTag) throws Exception;
+    public boolean removeTag(Tag tagToRemove) throws Exception;
 
     /**
      * Detach a tag from a lesson
      *
-     * @param idTag
+     * @param tagToDetach
      * @param idLesson
      * @throws Exception
      */
-    public void detachTag(Integer idTag, Integer idLesson) throws Exception;
+    public boolean detachTag(Integer idLesson, Tag tagToDetach) throws Exception;
 
-    /**
-     * Get the id of the last tag added
-     *
-     * @return
-     * @throws Exception
-     */
-    public int getNextTagID() throws Exception;
 
     /**
      * Get all the tags of a specific lesson

@@ -9,49 +9,7 @@ import java.util.Objects;
 
 public class SQLiteTagDAO implements TagDAO{
     @Override
-    public Tag getTagByID(Integer idTag) throws SQLException {
-        Connection con = Database.getConnection();
-        PreparedStatement ps = con.prepareStatement("SELECT * FROM tags WHERE idTag = ?");
-        ps.setInt(1, idTag);
-        ResultSet rs = ps.executeQuery();
-
-        if (rs.next()){
-            if(Objects.equals(rs.getString("tagType"), "Online")){
-                TagIsOnline tio = new TagIsOnline(rs.getInt("idTag"), rs.getString("tag"));
-                rs.close();
-                ps.close();
-                Database.closeConnection(con);
-                return tio;
-            } else if (Objects.equals(rs.getString("tagType"), "Level")) {
-                TagLevel tl = new TagLevel(rs.getInt("idTag"), rs.getString("tag"));
-                rs.close();
-                ps.close();
-                Database.closeConnection(con);
-                return tl;
-            } else if (Objects.equals(rs.getString("tagType"), "Subject")) {
-                TagSubject ts = new TagSubject(rs.getInt("idTag"), rs.getString("tag"));
-                rs.close();
-                ps.close();
-                Database.closeConnection(con);
-                return ts;
-            } else if (Objects.equals(rs.getString("tagType"), "Zone")) {
-                TagZone tz = new TagZone(rs.getInt("idTag"), rs.getString("tag"));
-                rs.close();
-                ps.close();
-                Database.closeConnection(con);
-                return tz;
-            }
-        }
-
-        rs.close();
-        ps.close();
-        Database.closeConnection(con);
-
-        return null;
-    }
-
-    @Override
-    public Tag getTagByInfo(String tag, String tagType) throws SQLException {
+    public Tag getTag(String tag, String tagType) throws SQLException {
         Connection con = Database.getConnection();
         PreparedStatement ps = con.prepareStatement("SELECT * FROM tags WHERE tag = ? AND tagType = ?");
         ps.setString(1, tag);
@@ -60,25 +18,25 @@ public class SQLiteTagDAO implements TagDAO{
 
         if (rs.next()){
             if(Objects.equals(rs.getString("tagType"), "Online")){
-                TagIsOnline tio = new TagIsOnline(rs.getInt("idTag"), rs.getString("tag"));
+                TagIsOnline tio = new TagIsOnline(rs.getString("tag"));
                 rs.close();
                 ps.close();
                 Database.closeConnection(con);
                 return tio;
             } else if (Objects.equals(rs.getString("tagType"), "Level")) {
-                TagLevel tl = new TagLevel(rs.getInt("idTag"), rs.getString("tag"));
+                TagLevel tl = new TagLevel(rs.getString("tag"));
                 rs.close();
                 ps.close();
                 Database.closeConnection(con);
                 return tl;
             } else if (Objects.equals(rs.getString("tagType"), "Subject")) {
-                TagSubject ts = new TagSubject(rs.getInt("idTag"), rs.getString("tag"));
+                TagSubject ts = new TagSubject(rs.getString("tag"));
                 rs.close();
                 ps.close();
                 Database.closeConnection(con);
                 return ts;
             } else if (Objects.equals(rs.getString("tagType"), "Zone")) {
-                TagZone tz = new TagZone(rs.getInt("idTag"), rs.getString("tag"));
+                TagZone tz = new TagZone(rs.getString("tag"));
                 rs.close();
                 ps.close();
                 Database.closeConnection(con);
@@ -103,16 +61,16 @@ public class SQLiteTagDAO implements TagDAO{
 
         while (rs.next()){
             if(Objects.equals(rs.getString("tagType"), "Online")){
-                TagIsOnline tio = new TagIsOnline(rs.getInt("idTag"), rs.getString("tag"));
+                TagIsOnline tio = new TagIsOnline(rs.getString("tag"));
                 tags.add(tio);
             } else if (Objects.equals(rs.getString("tagType"), "Level")) {
-                TagLevel tl = new TagLevel(rs.getInt("idTag"), rs.getString("tag"));
+                TagLevel tl = new TagLevel(rs.getString("tag"));
                 tags.add(tl);
             } else if (Objects.equals(rs.getString("tagType"), "Subject")) {
-                TagSubject ts = new TagSubject(rs.getInt("idTag"), rs.getString("tag"));
+                TagSubject ts = new TagSubject(rs.getString("tag"));
                 tags.add(ts);
             } else if (Objects.equals(rs.getString("tagType"), "Zone")) {
-                TagZone tz = new TagZone(rs.getInt("idTag"), rs.getString("tag"));
+                TagZone tz = new TagZone(rs.getString("tag"));
                 tags.add(tz);
             }
         }
@@ -136,12 +94,13 @@ public class SQLiteTagDAO implements TagDAO{
     }
 
     @Override
-    public void attachTag(Integer idTag, Integer idLesson) throws SQLException {
+    public void attachTag(Integer idLesson, Tag tagToAttach) throws SQLException {
 
         Connection con = Database.getConnection();
-        PreparedStatement ps = con.prepareStatement("INSERT INTO lessonsTags (idTag, idLesson) VALUES (?, ?)");
-        ps.setInt(1, idLesson);
-        ps.setInt(2, this.getNextTagID());
+        PreparedStatement ps = con.prepareStatement("INSERT INTO lessonsTags (tag, tagType, idLesson) VALUES (?, ?, ?)");
+        ps.setString(1, tagToAttach.getTag());
+        ps.setString(2, tagToAttach.getTypeOfTag());
+        ps.setInt(3, idLesson);
         ps.executeUpdate();
         ps.close();
 
@@ -150,11 +109,11 @@ public class SQLiteTagDAO implements TagDAO{
     }
 
     @Override
-    public boolean removeTag(Integer idTag) throws SQLException {
-
+    public boolean removeTag(Tag tagToRemove) throws SQLException {
         Connection con = Database.getConnection();
-        PreparedStatement ps = con.prepareStatement("DELETE FROM tags WHERE idTag = ?");
-        ps.setInt(1, idTag);
+        PreparedStatement ps = con.prepareStatement("DELETE FROM tags WHERE tag = ? AND tagType = ?");
+        ps.setString(1, tagToRemove.getTag());
+        ps.setString(1, tagToRemove.getTypeOfTag());
         int rows = ps.executeUpdate();
 
         ps.close();
@@ -162,15 +121,17 @@ public class SQLiteTagDAO implements TagDAO{
         return rows > 0;
     }
 
-    public void detachTag(Integer idTag, Integer idLesson) throws SQLException {
+    public boolean detachTag(Integer idLesson, Tag tagToDetach) throws SQLException {
         Connection con = Database.getConnection();
-        PreparedStatement ps = con.prepareStatement("DELETE FROM lessonsTags WHERE idTag = ? AND idLesson = ?");
-        ps.setInt(1, idTag);
-        ps.setInt(2, idLesson);
-        ps.executeUpdate();
+        PreparedStatement ps = con.prepareStatement("DELETE FROM lessonsTags WHERE tag = ? AND tagType = ? AND idLesson = ?");
+        ps.setString(1, tagToDetach.getTag());
+        ps.setString(2, tagToDetach.getTypeOfTag());
+        ps.setInt(3, idLesson);
+        int rows = ps.executeUpdate();
         ps.close();
 
         con.close();
+        return rows > 1;
     }
 
 
@@ -179,41 +140,28 @@ public class SQLiteTagDAO implements TagDAO{
     public List<Tag> getTagsByLesson(Integer idLesson) throws SQLException {
         Connection con = Database.getConnection();
         List<Tag> tags = new ArrayList<>();
-        PreparedStatement ps = con.prepareStatement("SELECT * FROM lessonsTags JOIN tags ON lessonsTags.idTag = tags.idTag WHERE idLesson = ?");
+        PreparedStatement ps = con.prepareStatement("SELECT * FROM lessonsTags JOIN tags ON lessonsTags.tag = tags.tag AND lessonsTags.tagType = tags.tagType WHERE idLesson = ?");
         ps.setInt(1, idLesson);
         ResultSet rs = ps.executeQuery();
 
         // This recreates the tags of the lesson, is inside the if because if the lesson is null, you have no tags
         while (rs.next()){
             if(Objects.equals(rs.getString("tagType"), "Online")){
-                TagIsOnline tio = new TagIsOnline(rs.getInt("idTag"), rs.getString("tag"));
+                TagIsOnline tio = new TagIsOnline(rs.getString("tag"));
                 tags.add(tio);
             } else if (Objects.equals(rs.getString("tagType"), "Level")) {
-                TagLevel tl = new TagLevel(rs.getInt("idTag"), rs.getString("tag"));
+                TagLevel tl = new TagLevel(rs.getString("tag"));
                 tags.add(tl);
             } else if (Objects.equals(rs.getString("tagType"), "Subject")) {
-                TagSubject ts = new TagSubject(rs.getInt("idTag"), rs.getString("tag"));
+                TagSubject ts = new TagSubject(rs.getString("tag"));
                 tags.add(ts);
             } else if (Objects.equals(rs.getString("tagType"), "Zone")) {
-                TagZone tz = new TagZone(rs.getInt("idTag"), rs.getString("tag"));
+                TagZone tz = new TagZone(rs.getString("tag"));
                 tags.add(tz);
             }
         }
 
         return tags;
     }
-
-    public int getNextTagID() throws SQLException{
-        Connection connection = Database.getConnection();
-        Statement stmt = connection.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT MAX(idTag) FROM main.tags");
-        int id = rs.getInt(1) + 1;
-
-        rs.close();
-        stmt.close();
-        Database.closeConnection(connection);
-        return id;
-    }
-
 
 }

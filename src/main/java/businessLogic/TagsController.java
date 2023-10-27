@@ -10,28 +10,34 @@ public class TagsController {
         this.tagDAO = tagDAO;
     }
 
-    public int createTag(String tag, String tagType) throws Exception {
-        Tag t = this.tagDAO.getTagByInfo(tag, tagType);
+    public Tag createTag(String tag, String tagType) throws Exception {
+        Tag t = this.tagDAO.getTag(tag, tagType);
         if ( t == null ){
             switch (tagType){
                 case "IsOnline":
-                    TagIsOnline tagIsOnline = new TagIsOnline(this.tagDAO.getNextTagID(), tag);
-                    return tagIsOnline.getIdTag();
+                    TagIsOnline tagIsOnline = new TagIsOnline(tag);
+                    this.tagDAO.addTag(tagIsOnline);
+                    return this.tagDAO.getTag(tagIsOnline.getTag(), tagIsOnline.getTypeOfTag());
                 case "Level":
-                    TagLevel tagLevel = new TagLevel(this.tagDAO.getNextTagID(), tag);
+                    TagLevel tagLevel = new TagLevel(tag);
+                    this.tagDAO.addTag(tagLevel);
+                    return this.tagDAO.getTag(tagLevel.getTag(), tagLevel.getTypeOfTag());
                 case "Subject":
-                    t = new TagSubject(this.tagDAO.getNextTagID(), tag);
+                    TagSubject tagSubject = new TagSubject(tag);
+                    this.tagDAO.addTag(tagSubject);
+                    return this.tagDAO.getTag(tagSubject.getTag(), tagSubject.getTypeOfTag());
                 case "Zone":
-                    t = new TagZone(this.tagDAO.getNextTagID(), tag);
+                    TagZone tagZone = new TagZone(tag);
+                    this.tagDAO.addTag(tagZone);
+                    return this.tagDAO.getTag(tagZone.getTag(), tagZone.getTypeOfTag());
                 default: throw new IllegalArgumentException("Invalid tag type");
             }
         }
 
-        return t.getIdTag();
+        return this.tagDAO.getTag(t.getTag(), t.getTypeOfTag());
     }
 
-    public boolean deleteTag(int idTag) throws Exception{
-        //TODO
-        return this.tagDAO.removeTag(idTag);
+    public boolean deleteTag(Tag tagToRemove) throws Exception{
+        return this.tagDAO.removeTag(tagToRemove);
     }
 }

@@ -5,7 +5,6 @@ import domainModel.State.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
-import org.mockito.Mockito;
 import java.time.LocalDateTime;
 
 public class LessonTest {
@@ -47,25 +46,30 @@ public class LessonTest {
         Available availableState = new Available();
         lesson.setState(availableState);
         Assertions.assertEquals("Available", lesson.getState());
-        Assertions.assertEquals("", lesson.getStateExtraInfo());
+        Assertions.assertNull( lesson.getStateExtraInfo());
     }
 
     @Test
     void testTagOperations() {
         // Verifica i metodi di gestione dei tag
-        TagZone tagZone = new TagZone(1, "Firenze");
-        TagSubject tagSubject = new TagSubject( 2, "Matematica");
+        TagZone tagZone = new TagZone("Firenze");
+        TagSubject tagSubject = new TagSubject( "Matematica");
 
         // Aggiungi un tag
         lesson.addTag(tagZone);
+        lesson.addTag(tagSubject);
         Assertions.assertTrue(lesson.getTags().contains(tagZone));
 
         // Rimuovi un tag
-        lesson.removeTag("Zone", "Tag1");
+        lesson.removeTag("Zone", "Firenze");
         Assertions.assertFalse(lesson.getTags().contains(tagZone));
 
+        // Verifica che il metodo removeTag lanci un'eccezione quando si cerca di rimuovere un tag con un tagType non valido
+        Assertions.assertThrows(IllegalArgumentException.class, () -> lesson.removeTag("InvalidType", "Tag1"));
+
+
         // Tentativo di rimuovere un tag che non esiste
-        boolean removed = lesson.removeTag("Type2", "Tag2");
+        boolean removed = lesson.removeTag("Zone", "Tag2");
         Assertions.assertFalse(removed);
     }
 }

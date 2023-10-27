@@ -5,12 +5,6 @@ public abstract class Tag {
 
     protected String typeOfTag;
 
-    protected int idTag;
-
-    public int getIdTag() {
-        return idTag;
-    }
-
     public String getTypeOfTag() {
         return this.typeOfTag;
     }

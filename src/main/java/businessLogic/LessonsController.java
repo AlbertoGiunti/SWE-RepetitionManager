@@ -10,6 +10,7 @@ import domainModel.Tutor;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 
 import static java.util.Collections.unmodifiableList;
@@ -161,9 +162,35 @@ public class LessonsController {
         }
     }
 
-    public void attachTag(int idLesson, Tag newTag) throws Exception {
-        if (this.tagDAO.getTag(newTag.getIdTag()) == null){
+    /**
+     * Attach an existing tag to a lesson
+     *
+     * @param idLesson
+     * @param tagToAttach
+     * @throws Exception bubbles up exception of TagDAO::getTag
+     */
+    public void attachTag(int idLesson, Tag tagToAttach) throws Exception {
+        if (this.tagDAO.getTag(tagToAttach.getTag(), tagToAttach.getTypeOfTag()) != null){
+            this.tagDAO.attachTag(idLesson, tagToAttach);
+        }else
+            throw new IllegalArgumentException("This tag does not exist");
+    }
 
+    /**
+     *
+     *
+     * @param idLesson
+     * @param tagToDetach
+     * @return
+     * @throws Exception
+     */
+    public boolean detachTag(int idLesson, Tag tagToDetach) throws Exception{
+        List<Tag> tags = this.tagDAO.getTagsByLesson(idLesson);
+        for (Tag t : tags){
+            if (Objects.equals(t.getTypeOfTag(), tagToDetach.getTypeOfTag()) && Objects.equals(t.getTag(), tagToDetach.getTypeOfTag())){
+                return this.tagDAO.detachTag(idLesson, tagToDetach);
+            }
         }
+        return false;
     }
 }

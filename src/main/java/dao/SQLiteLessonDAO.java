@@ -140,11 +140,11 @@ public class SQLiteLessonDAO implements LessonDAO{
 
         for (Tag t : lesson.getTags()){
             // Add the tag to the DB if it does not exist
-            if (this.tagDAO.getTagByID(t.getIdTag()) == null){
+            if (this.tagDAO.getTag(t.getTag(), t.getTypeOfTag()) == null){
                 this.tagDAO.addTag(t);
             }
             // Attach the tag at the lesson
-            this.tagDAO.attachTag(this.getNextLessonID(), t.getIdTag());
+            this.tagDAO.attachTag(this.getNextLessonID(), t);
         }
 
         Database.closeConnection(con);

@@ -97,7 +97,7 @@ public class Lesson {
 
     public boolean removeTag(String tagType, String tag){   // tagType sono: Level, Subject, IsOnline, Zone.
                                                             // tag esempi: Firenze, Matematica, True, Elementari ecc...
-        if (!Objects.equals(tagType, "Level") || !Objects.equals(tagType, "Subject") || !Objects.equals(tagType, "Zone") || !Objects.equals(tagType, "IsOnline")){
+        if (!Objects.equals(tagType, "Level") && !Objects.equals(tagType, "Subject") && !Objects.equals(tagType, "Zone") && !Objects.equals(tagType, "IsOnline")){
             throw new IllegalArgumentException("Invalid tagType");
         }
         boolean removed = false;
