@@ -84,18 +84,17 @@ public class SQLiteTagDAO implements TagDAO{
     @Override
     public void addTag(Tag tag) throws SQLException {
         Connection con = Database.getConnection();
-        PreparedStatement ps1 = con.prepareStatement("INSERT INTO tags (tag, tagType) VALUES (?, ?)");
-        ps1.setString(1, tag.getTag());
-        ps1.setString(2, tag.getTypeOfTag());
-        ps1.executeUpdate();
-        ps1.close();
+        PreparedStatement ps = con.prepareStatement("INSERT INTO tags (tag, tagType) VALUES (?, ?)");
+        ps.setString(1, tag.getTag());
+        ps.setString(2, tag.getTypeOfTag());
+        ps.executeUpdate();
+        ps.close();
 
         Database.closeConnection(con);
     }
 
     @Override
     public void attachTag(Integer idLesson, Tag tagToAttach) throws SQLException {
-
         Connection con = Database.getConnection();
         PreparedStatement ps = con.prepareStatement("INSERT INTO lessonsTags (tag, tagType, idLesson) VALUES (?, ?, ?)");
         ps.setString(1, tagToAttach.getTag());
@@ -104,8 +103,7 @@ public class SQLiteTagDAO implements TagDAO{
         ps.executeUpdate();
         ps.close();
 
-        con.close();
-
+        Database.closeConnection(con);
     }
 
     @Override
@@ -133,7 +131,7 @@ public class SQLiteTagDAO implements TagDAO{
         int rows = ps.executeUpdate();
         ps.close();
 
-        con.close();
+        Database.closeConnection(con);
         return rows > 0;
     }
 

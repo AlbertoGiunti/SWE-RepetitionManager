@@ -8,6 +8,7 @@ import domainModel.Tags.*;
 import domainModel.Tutor;
 
 
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -68,6 +69,13 @@ public class LessonsController {
         return l.getIdLesson();
     }
 
+    public void updateLesson(int idLesson, String newTitle, String newDescription, LocalDateTime newStartTime, LocalDateTime newEndTime, double newPrice, String tutorCF) throws Exception {
+        if (this.lessonDAO.get(idLesson) == null) throw new IllegalArgumentException("You cannot modify a lesson that doesn't exist.");
+
+        Lesson l = new Lesson(idLesson, newTitle, newDescription, newStartTime, newEndTime, newPrice, tutorCF);
+        this.lessonDAO.update(l);
+    }
+
     /**
      * Delete a lesson
      *
@@ -112,55 +120,6 @@ public class LessonsController {
         return lessonDAO.getTutorLessonsByState(tutorCF, state);
     }
 
-    /**
-     * This method change the lesson state.
-     *
-     * @param idLesson
-     * @param newState
-     * @throws Exception
-     */
-    public void changeLessonState(int idLesson, State newState) throws Exception {
-        Lesson lesson = null;
-        lesson = lessonDAO.get(idLesson);
-        if(lesson == null){
-            throw new IllegalArgumentException("Lesson not found");
-        }
-
-        String oldState = lesson.getState();
-
-        switch (oldState) {
-            case "Completed":
-                throw new IllegalArgumentException("You cannot change the status of a lesson that has already been conducted.");
-            case "Available":
-                switch (newState.getState()) {
-                    case "Booked":
-                    case "Cancelled":
-                        lessonDAO.changeState(idLesson, newState);
-                    default:
-                        throw new IllegalArgumentException("This lesson is " + oldState + "and cannot be changed to" + newState.getState());
-                }
-
-            case "Booked":
-                switch (newState.getState()) {
-                    case "Available":
-                    case "Cancelled":
-                    case "Completed":
-                        lessonDAO.changeState(idLesson, newState);
-                    default:
-                        throw new IllegalArgumentException("This lesson is " + oldState + "and cannot be changed to" + newState.getState());
-                }
-
-            case "Cancelled":
-                if (newState.getState().equals("Available")) {
-                    lessonDAO.changeState(idLesson, newState);
-                } else {
-                    throw new IllegalArgumentException("This lesson is " + oldState + "and cannot be changed to" + newState.getState());
-                }
-
-            default:
-                throw new IllegalArgumentException("Invalid state");
-        }
-    }
 
     /**
      * Attach an existing tag to a lesson
@@ -177,7 +136,7 @@ public class LessonsController {
     }
 
     /**
-     *
+     * Detach a tag from a lesson
      *
      * @param idLesson
      * @param tagToDetach
@@ -187,7 +146,7 @@ public class LessonsController {
     public boolean detachTag(int idLesson, Tag tagToDetach) throws Exception{
         List<Tag> tags = this.tagDAO.getTagsByLesson(idLesson);
         for (Tag t : tags){
-            if (Objects.equals(t.getTypeOfTag(), tagToDetach.getTypeOfTag()) && Objects.equals(t.getTag(), tagToDetach.getTypeOfTag())){
+            if (Objects.equals(t.getTypeOfTag(), tagToDetach.getTypeOfTag()) && Objects.equals(t.getTag(), tagToDetach.getTag())){
                 return this.tagDAO.detachTag(idLesson, tagToDetach);
             }
         }

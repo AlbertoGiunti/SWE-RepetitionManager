@@ -144,7 +144,7 @@ public class SQLiteLessonDAO implements LessonDAO{
                 this.tagDAO.addTag(t);
             }
             // Attach the tag at the lesson
-            this.tagDAO.attachTag(this.getNextLessonID(), t);
+            this.tagDAO.attachTag(this.getLastLessonID(), t);
         }
 
         Database.closeConnection(con);
@@ -241,12 +241,24 @@ public class SQLiteLessonDAO implements LessonDAO{
         return id;
     }
 
+    private int getLastLessonID() throws SQLException {
+        Connection connection = Database.getConnection();
+        Statement stmt = connection.createStatement();
+        ResultSet rs = stmt.executeQuery("SELECT MAX(idLesson) FROM main.lessons");
+        int id = rs.getInt(1);
+
+        rs.close();
+        stmt.close();
+        Database.closeConnection(connection);
+        return id;
+    }
+
 
     // This method change state
     @Override
     public void changeState(Integer idLesson, State newState) throws SQLException{
         Connection con = Database.getConnection();
-        PreparedStatement ps =con.prepareStatement("UPDATE lessons SET state = ?, stateExtraInfo = ? WHERE idLesson = ?");
+        PreparedStatement ps = con.prepareStatement("UPDATE lessons SET state = ?, stateExtraInfo = ? WHERE idLesson = ?");
         ps.setString(1, newState.getState());
         ps.setString(2, newState.getExtraInfo());
         ps.setInt(3, idLesson);
