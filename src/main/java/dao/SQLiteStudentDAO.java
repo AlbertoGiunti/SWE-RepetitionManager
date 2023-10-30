@@ -10,7 +10,6 @@ public class SQLiteStudentDAO implements StudentDAO {
 
     // Get a specific student
     @Override
-
     public Student get(String CF) throws SQLException{
         // Create a connection with the DB
         Connection con = Database.getConnection();

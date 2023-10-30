@@ -22,18 +22,18 @@ public class SQLiteLessonDAO implements LessonDAO{
     // This recreates the lesson state
     private void setLessonState(ResultSet rs, Lesson lesson) throws SQLException {
         if (Objects.equals(rs.getString("state"), "Booked")){
-            String a = rs.getString("stateExtraInfo");
+            String a = rs.getString("stateExtraInfo"); // a = studentCF
             Booked booked = new Booked(a);
             lesson.setState(booked);
         } else if (Objects.equals(rs.getString("state"), "Cancelled")) {
-            LocalDateTime ldt = LocalDateTime.parse(rs.getString("stateExtraInfo"));
+            LocalDateTime ldt = LocalDateTime.parse(rs.getString("stateExtraInfo")); //ldt = cancelledTime
             Cancelled cancelled = new Cancelled(ldt);
             lesson.setState(cancelled);
         } else if (Objects.equals(rs.getString("state"), "Completed")) {
-            LocalDateTime ldt = LocalDateTime.parse(rs.getString("stateExtraInfo"));
+            LocalDateTime ldt = LocalDateTime.parse(rs.getString("stateExtraInfo")); //ldt = completedTime
             Completed completed = new Completed(ldt);
             lesson.setState(completed);
-        }else {
+        } else {
             Available available = new Available();
             lesson.setState(available);
         }
@@ -210,6 +210,7 @@ public class SQLiteLessonDAO implements LessonDAO{
         return lessons;
     }
 
+    @Override
     public List<Lesson> getStudentBookedLessons(String sCF) throws Exception {
         Connection con = Database.getConnection();
         PreparedStatement ps = con.prepareStatement("SELECT * FROM lessons WHERE state = ? AND stateExtraInfo = ?");
@@ -230,15 +231,20 @@ public class SQLiteLessonDAO implements LessonDAO{
 
     @Override
     public int getNextLessonID() throws SQLException{
-        Connection connection = Database.getConnection();
-        Statement stmt = connection.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT MAX(idLesson) FROM main.lessons");
-        int id = rs.getInt(1) + 1;
+        Connection con = Database.getConnection();
+        PreparedStatement ps = con.prepareStatement("SELECT seq FROM sqlite_sequence WHERE name=?");
+        ps.setString(1, "lessons");
+        ResultSet rs = ps.executeQuery();
+        int nextId = 1;
+        if (rs.next()) {
+            nextId = rs.getInt("seq") + 1;
+            // Ora puoi utilizzare nextId come il prossimo ID per il tuo nuovo record
+        }
 
         rs.close();
-        stmt.close();
-        Database.closeConnection(connection);
-        return id;
+        ps.close();
+        Database.closeConnection(con);
+        return nextId;
     }
 
     private int getLastLessonID() throws SQLException {

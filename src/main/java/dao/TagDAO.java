@@ -5,6 +5,8 @@ import domainModel.Tags.*;
 import java.util.List;
 
 public interface TagDAO {
+    //TODO eredita da DAO?
+
     /**
      * Get tag by his info
      *

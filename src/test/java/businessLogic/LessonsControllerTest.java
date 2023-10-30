@@ -1,7 +1,6 @@
 package businessLogic;
 
 import dao.*;
-import businessLogic.LessonsController;
 import domainModel.State.*;
 import domainModel.Lesson;
 import domainModel.Tags.*;
@@ -11,6 +10,8 @@ import java.util.List;
 import java.sql.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,18 +22,20 @@ class LessonsControllerTest {
     private static SQLiteTagDAO tagDAO;
     private static SQLiteLessonDAO lessonDAO;
 
+    private static TagsController tagsController;
+
     @BeforeAll
     static void setUp() throws Exception {
         Database.setDatabase("test.db");
         Database.initDatabase();
-        Connection connection = Database.getConnection();
         tagDAO = new SQLiteTagDAO();
         lessonDAO = new SQLiteLessonDAO(tagDAO);
         lessonsController = new LessonsController(lessonDAO, tagDAO, new TutorsController(new SQLiteTutorDAO()));
+        tagsController = new TagsController(tagDAO);
     }
 
     @BeforeEach
-    void init() throws Exception {
+    void setUpDatabase() throws Exception {
         Connection connection = Database.getConnection();
 
         // Pulisci le tabelle "lessons" e "tags"
@@ -53,6 +56,18 @@ class LessonsControllerTest {
 
         connection.prepareStatement("INSERT INTO lessons (idLesson, title, description, startTime, endTime, price, tutorCF, state, stateExtraInfo) VALUES (1, 'Math Lesson', 'Math basics', '2023-10-25T10:00:00', '2023-10-25T11:00:00', 50.0, 'tutor1', 'Available', NULL)").executeUpdate();
         connection.prepareStatement("INSERT INTO lessons (idLesson, title, description, startTime, endTime, price, tutorCF, state, stateExtraInfo) VALUES (2, 'Physics Lesson', 'Physics basics', '2023-10-26T10:00:00', '2023-10-26T11:00:00', 60.0, 'tutor2', 'Booked', 'student1')").executeUpdate();
+    }
+
+    @AfterEach
+    void tearDownDatabase() throws Exception {
+        Connection connection = Database.getConnection();
+
+        // Ripulisci le tabelle "lessons" e "tags" dopo ogni test
+        connection.prepareStatement("DELETE FROM lessons").executeUpdate();
+        connection.prepareStatement("DELETE FROM tags").executeUpdate();
+        connection.prepareStatement("DELETE FROM tutors").executeUpdate();
+        connection.prepareStatement("DELETE FROM students").executeUpdate();
+        connection.prepareStatement("DELETE FROM lessonsTags").executeUpdate();
     }
 
     @Test
@@ -83,7 +98,13 @@ class LessonsControllerTest {
         TagSubject ts = new TagSubject("English");
         tags.add(ts);
         int lessonId = lessonsController.addLesson("English Lesson", "English basics", LocalDateTime.now(), LocalDateTime.now(), 40.0, "tutor2", tags);
-        assertNotNull(lessonDAO.get(lessonId));
+
+        // Assicurati che lessonId sia un valore valido
+        assertTrue(lessonId > 0);
+
+        // Assicurati che la lezione sia stata inserita correttamente nel database
+        Lesson insertedLesson = lessonsController.getLesson(lessonId);
+        assertNotNull(insertedLesson);
     }
 
     @Test
@@ -103,7 +124,7 @@ class LessonsControllerTest {
 
     @Test
     void testDeleteNonExistentLesson() throws Exception {
-        assertFalse(lessonsController.removeLesson(3));
+        assertFalse(lessonsController.removeLesson(99));
     }
 
     @Test
@@ -146,8 +167,11 @@ class LessonsControllerTest {
     @Test
     void testDetachTagFromLesson() throws Exception {
         // Prepara il database di test con una lezione esistente
-        TagZone tz = new TagZone("Firenze");
-        TagIsOnline tio = new TagIsOnline("True");
+        TagZone tz = new TagZone("Prato");
+        TagIsOnline tio = new TagIsOnline("False");
+        tagsController.createTag("Prato", "Zone");
+        tagsController.createTag("False", "IsOnline");
+
         List<Tag> lessonTags = new ArrayList<>();
         lessonTags.add(tz);
         lessonTags.add(tio);
