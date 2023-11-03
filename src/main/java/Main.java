@@ -80,6 +80,10 @@ public class Main {
                     "Inglese"),
                 29.00));
 
+
+        List<Lesson> lessons2= lessonsController.search(new DecoratorSearchStartTime(
+                new SearchConcrete(), LocalDateTime.now().minusHours(1)));
+
         for (Lesson l : lessons){
             System.out.println(l.toString());
         }

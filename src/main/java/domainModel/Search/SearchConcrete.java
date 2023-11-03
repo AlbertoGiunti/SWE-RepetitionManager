@@ -11,7 +11,7 @@ public class SearchConcrete implements Search {
     private final String query;
 
     public SearchConcrete(){
-        this.query = "SELECT * FROM lessons JOIN lessonsTags ON lessons.idLesson = lessonsTags.idLesson WHERE lessons.state = 'Available'";
+        this.query = "SELECT * FROM lessons AS L WHERE L.state='Available'";
     }
 
     @Override

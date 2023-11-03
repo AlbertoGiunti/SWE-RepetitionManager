@@ -10,6 +10,6 @@ public class DecoratorSearchLevel extends BaseDecoratorSearch{
 
     @Override
     public String getSearchQuery() {
-        return super.getSearchQuery() + " AND lessonsTags.tag = '" + level + "'";
+        return super.getSearchQuery() + " AND L.idLesson IN (SELECT idLesson FROM lessonsTags WHERE tagType = 'Level' AND tag = '" + level + "' )";
     }
 }

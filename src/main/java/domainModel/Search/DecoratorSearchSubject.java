@@ -11,6 +11,6 @@ public class DecoratorSearchSubject extends BaseDecoratorSearch {
 
     @Override
     public String getSearchQuery() {
-        return super.getSearchQuery() + " AND lessonsTags.tag = '" + subject + "'";
+        return super.getSearchQuery() + "  AND L.idLesson IN (SELECT idLesson FROM lessonsTags WHERE tagType = 'Subject' AND tag = '" + subject + "' )";
     }
 }

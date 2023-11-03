@@ -11,7 +11,7 @@ public class DecoratorSearchZone extends BaseDecoratorSearch {
 
     @Override
     public String getSearchQuery() {
-        return super.getSearchQuery() + " AND lessonsTags.tag = '" + zone + "'";
+        return super.getSearchQuery() + " AND L.idLesson IN (SELECT idLesson FROM lessonsTags WHERE tagType = 'Zone' AND tag = '" + zone + "' )";
     }
 
 }
