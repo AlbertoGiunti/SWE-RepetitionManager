@@ -275,4 +275,21 @@ public class SQLiteLessonDAO implements LessonDAO{
         Database.closeConnection(con);
     }
 
+
+    public List<Lesson> search(String query) throws Exception{
+        Connection con = Database.getConnection();
+        PreparedStatement ps = con.prepareStatement(query);
+        ResultSet rs = ps.executeQuery();
+
+        List<Lesson> lessons = new ArrayList<>();
+
+        while (rs.next()){
+            lessons.add(this.get(rs.getInt("idLesson")));
+        }
+
+        rs.close();
+        ps.close();
+        Database.closeConnection(con);
+        return lessons;
+    }
 }

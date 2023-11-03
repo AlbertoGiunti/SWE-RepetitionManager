@@ -3,6 +3,7 @@ package businessLogic;
 import dao.LessonDAO;
 import dao.TagDAO;
 import domainModel.Lesson;
+import domainModel.Search.Search;
 import domainModel.State.*;
 import domainModel.Tags.*;
 import domainModel.Tutor;
@@ -151,5 +152,9 @@ public class LessonsController {
             }
         }
         return false;
+    }
+
+    public List<Lesson> search(Search search) throws Exception{
+        return lessonDAO.search(search.getSearchQuery());
     }
 }

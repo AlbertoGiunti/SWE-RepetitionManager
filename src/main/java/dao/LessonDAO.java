@@ -39,4 +39,7 @@ public interface LessonDAO extends DAO <Lesson, Integer> {
      * @throws Exception
      */
     public void changeState(Integer idLesson, State newState) throws Exception;
+
+    public List<Lesson> search(String query) throws Exception;
+
 }

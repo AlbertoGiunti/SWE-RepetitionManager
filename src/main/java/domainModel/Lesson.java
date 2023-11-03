@@ -111,4 +111,16 @@ public class Lesson {
         return removed;
     }
 
+    @Override
+    public String toString(){
+        return "Lesson{" +
+                "title='" + getTitle() + '\'' +
+                ", description='" + getDescription() + '\'' +
+                ", start time='" + getStartTime().toString() + '\'' +
+                ", end time='" + getEndTime().toString() + '\'' +
+                ", tutor='" + getTutorCF() + '\'' +
+                ", price='" + getPrice() + '\'' +
+                '}';
+    }
+
 }
