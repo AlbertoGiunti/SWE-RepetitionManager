@@ -65,12 +65,28 @@ public class Main {
         tags2.add(tagSubjectMatematica);
         tags2.add(tagSubjectInglese);
 
+        List<Tag> tags3 = new ArrayList<>();
+        tags3.add(tagZoneParma);
+        tags3.add(tagSubjectFisica);
+
+        List<Tag> tags4 = new ArrayList<>();
+        tags4.add(tagZoneMilano);
+        tags4.add(tagSubjectInglese);
+
+        List<Tag> tags5 = new ArrayList<>();
+        tags5.add(tagZoneFirenze);
+        tags5.add(tagSubjectInglese);
+
 
         // Add sample lessons
         int lMatFi = lessonsController.addLesson("Lezione di Matematica", "Prima lezione di matematica a Firenze", LocalDateTime.now(), LocalDateTime.now().plusHours(2), 25, "tutor1", tags1);
-        int lFisMi = lessonsController.addLesson("Lezione di Fisica", "Prima lezione di matematica a Milano", LocalDateTime.now(), LocalDateTime.now().plusHours(2), 25.00, "tutor2", tags2);
+        int lFisMi = lessonsController.addLesson("Lezione di Fisica", "Prima lezione di fisica a Milano", LocalDateTime.now(), LocalDateTime.now().plusHours(2), 25.00, "tutor2", tags2);
+        int lFisPa = lessonsController.addLesson("Lezione di Fisica", "Prima lezione di fisica a Parma", LocalDateTime.now().plusHours(3), LocalDateTime.now().plusHours(5), 30.00, "tutor2", tags3);
+        int lIngMi = lessonsController.addLesson("Lezione di Inglese", "Prima lezione di inglese a Milano", LocalDateTime.now().plusHours(23), LocalDateTime.now().plusHours(24), 35.00, "tutor2", tags4);
+        int lIngFi = lessonsController.addLesson("Lezione di Inglese", "Prima lezione di inglese a Firenze", LocalDateTime.now().plusHours(27), LocalDateTime.now().plusHours(29), 18.00, "tutor2", tags5);
 
-
+        // DECORATOR
+        System.out.println("Searching for lessons with Matematica and Inglese tags and price less than 29.00. Query generated:");
         List<Lesson> lessons = lessonsController.search(
                 new DecoratorSearchPrice
                     (new DecoratorSearchSubject(
@@ -80,16 +96,17 @@ public class Main {
                     "Inglese"),
                 29.00));
 
-
-
-
+        System.out.println("\nResults:");
         for (Lesson l : lessons){
             System.out.println(l.toString());
         }
 
-        List<Lesson> lessons2= lessonsController.search(new DecoratorSearchStartTime(
-                new SearchConcrete(), LocalDateTime.now().minusHours(1)));
+        System.out.println("\nSearching for lessons starting from one hour ago. Query generated:");
 
+        List<Lesson> lessons2= lessonsController.search(new DecoratorSearchStartTime(
+                new SearchConcrete(), LocalDateTime.now().plusHours(5)));
+
+        System.out.println("\nResults:");
         for (Lesson l : lessons2){
             System.out.println(l.toString());
         }
