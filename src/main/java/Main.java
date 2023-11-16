@@ -81,10 +81,16 @@ public class Main {
                 29.00));
 
 
+
+
+        for (Lesson l : lessons){
+            System.out.println(l.toString());
+        }
+
         List<Lesson> lessons2= lessonsController.search(new DecoratorSearchStartTime(
                 new SearchConcrete(), LocalDateTime.now().minusHours(1)));
 
-        for (Lesson l : lessons){
+        for (Lesson l : lessons2){
             System.out.println(l.toString());
         }
 

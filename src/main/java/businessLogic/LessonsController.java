@@ -155,6 +155,7 @@ public class LessonsController {
     }
 
     public List<Lesson> search(Search search) throws Exception{
+        System.out.println(search.getSearchQuery());
         return lessonDAO.search(search.getSearchQuery());
     }
 }

@@ -112,15 +112,31 @@ public class Lesson {
     }
 
     @Override
-    public String toString(){
-        return "Lesson{" +
-                "title='" + getTitle() + '\'' +
-                ", description='" + getDescription() + '\'' +
-                ", start time='" + getStartTime().toString() + '\'' +
-                ", end time='" + getEndTime().toString() + '\'' +
-                ", tutor='" + getTutorCF() + '\'' +
-                ", price='" + getPrice() + '\'' +
-                '}';
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        stringBuilder.append("Lesson{");
+        stringBuilder.append("title='").append(getTitle()).append('\'');
+        stringBuilder.append(", description='").append(getDescription()).append('\'');
+        stringBuilder.append(", start time='").append(getStartTime().toString()).append('\'');
+        stringBuilder.append(", end time='").append(getEndTime().toString()).append('\'');
+        stringBuilder.append(", tutor='").append(getTutorCF()).append('\'');
+        stringBuilder.append(", price='").append(getPrice()).append('\'');
+
+        // Aggiungi informazioni sui tag se presenti
+        if (!tags.isEmpty()) {
+            stringBuilder.append(", tags=[");
+            for (Tag tag : tags) {
+                stringBuilder.append(tag.getTypeOfTag()).append(":").append(tag.getTag()).append(", ");
+            }
+            // Rimuovi l'ultima virgola e spazio
+            stringBuilder.setLength(stringBuilder.length() - 2);
+            stringBuilder.append("]");
+        }
+
+        stringBuilder.append('}');
+
+        return stringBuilder.toString();
     }
 
 }
